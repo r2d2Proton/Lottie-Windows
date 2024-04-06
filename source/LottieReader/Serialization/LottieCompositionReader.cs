@@ -488,21 +488,8 @@ namespace CommunityToolkit.WinUI.Lottie.LottieData.Serialization
             // This buffer size is chosen to be about 50% larger than
             // the average file size in our corpus, so most of the time
             // we don't need to reallocate and copy.
-            var buffer = new byte[150000];
+            var buffer = new byte[stream.Length];
             var bytesRead = stream.Read(buffer, 0, buffer.Length);
-            var spaceLeftInBuffer = buffer.Length - bytesRead;
-
-            while (spaceLeftInBuffer == 0)
-            {
-                // Might be more to read. Expand the buffer.
-                var newBuffer = new byte[buffer.Length * 2];
-                spaceLeftInBuffer = buffer.Length;
-                var totalBytesRead = buffer.Length;
-                Array.Copy(buffer, 0, newBuffer, 0, totalBytesRead);
-                buffer = newBuffer;
-                bytesRead = stream.Read(buffer, totalBytesRead, buffer.Length - totalBytesRead);
-                spaceLeftInBuffer -= bytesRead;
-            }
 
             utf8Text = new ReadOnlySpan<byte>(buffer);
             NormalizeTextToUTF8(ref utf8Text);

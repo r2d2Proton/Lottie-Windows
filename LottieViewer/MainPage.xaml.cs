@@ -13,11 +13,13 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using LottieViewer.ViewModel;
+using Microsoft.VisualBasic;
 using Windows.ApplicationModel;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.Foundation.Metadata;
 using Windows.Storage;
 using Windows.Storage.Pickers;
+using Windows.Storage.Streams;
 using Windows.UI;
 using Windows.UI.Core;
 using Windows.UI.Xaml;
@@ -185,6 +187,17 @@ namespace LottieViewer
                 {
                     return;
                 }
+
+                // UTF-8 BOM                            EF BB BF
+                // UTF-16 Big Endian (BE) BOM           FE FF
+                // UTF-16 Little Endian (LE) BOM        FF FE
+                // UTF-32 Big Endian (BE) BOM           00 00 FE FF
+                // UTF-32 Little Endian (LE) BOM        FF FE 00 00
+                Windows.Storage.Streams.IBuffer fileBuffer = await Windows.Storage.FileIO.ReadBufferAsync(file);
+                Windows.Storage.Streams.IDataReader datareader = DataReader.FromBuffer(fileBuffer);
+
+                string fileString = await Windows.Storage.FileIO.ReadTextAsync(file);
+                var fileLines = await Windows.Storage.FileIO.ReadLinesAsync(file);
 
                 // Reset the scrubber to the 0 position.
                 _scrubber.Value = 0;
